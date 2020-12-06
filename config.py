@@ -1,3 +1,4 @@
+import json
 import logging
 import traceback
 
@@ -26,7 +27,6 @@ class Config:
     def __init__(self, bot):
         self.name = "JBot"
         self.version = "3.0.0"
-        self.token = 'INSERT TOKEN'
         self.bot = bot
         self.extensions: list = ['tickets_cmds', 'tickets_events', 'error_handler', 'listener', 'moderation',
                                  'help_command', 'info', 'audit_logger', 'pinger', 'react_role']
@@ -45,7 +45,9 @@ class Config:
         return embed
 
     def get_token(self):
-        return self.token
+        with open('token.json') as token:
+            data = json.load(token)
+            return data['token']
 
     def get_management_role(self):
         return self.management
