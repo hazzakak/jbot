@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 
 from config import Config, Roles
-from utilities.database import Tickets
 
 
 class ModerationCommands(commands.Cog, name="Moderation Commands"):
@@ -99,7 +98,7 @@ class ModerationCommands(commands.Cog, name="Moderation Commands"):
         await ctx.channel.purge(limit=amount, check=check)
         await loading_msg.edit(content=f"{amount} messages have been deleted.")
 
-    @commands.has_role(Roles().management)
+    '''@commands.has_role(Roles().management)
     @commands.command(name="changelog", aliases=['cl'])
     @commands.guild_only()
     async def _changelog(self, ctx, channel: discord.TextChannel):
@@ -111,7 +110,7 @@ class ModerationCommands(commands.Cog, name="Moderation Commands"):
         embed = Config(self.bot).embed()
         embed.set_author(name="JBot", icon_url="https://hazzakak.tech/images/P6V7B32Y.png")
         embed.description = f"Log channel has been changed to {channel.mention}"
-        return await ctx.send(embed=embed)
+        return await ctx.send(embed=embed)'''
 
 
 def setup(bot):

@@ -3,7 +3,7 @@ import datetime
 import discord
 from discord.ext import commands, tasks
 
-from utilities.database import Tickets
+from utilities.database import Ticket
 
 
 class AuditLogger(commands.Cog):
@@ -14,10 +14,8 @@ class AuditLogger(commands.Cog):
     @tasks.loop(seconds=3.0)
     async def audit_check(self):
         for guild in self.bot.guilds:
-            channel_id = await Tickets().get_log_channel(guild.id)
-            if channel_id[0] is None:
-                continue
-            audit = guild.get_channel(int(channel_id[0]))
+            channel_id = await Ticket().get_log_channel(guild.id)
+            audit = guild.get_channel(int(channel_id))
             async for entry in guild.audit_logs(oldest_first=True):
                 if entry.created_at >= datetime.datetime.utcnow() - datetime.timedelta(seconds=3):
                     if entry.action is discord.AuditLogAction.ban:

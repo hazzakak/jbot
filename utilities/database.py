@@ -56,90 +56,84 @@ class ReactRoles(Database):
             return cursor
 
 
-class Tickets:
-    async def add_server(self, id):
+class Ticket:
+    # add a ticket to the database
+    async def add_ticket_group(self, name, viewroles, description, guild):
         async with aiosqlite.connect('utilities/databases/tickets.db') as db:
-            try:
-                sql = f'''CREATE TABLE server_{id} (
-                    `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-                    `roles` TEXT,
-                    `name` TEXT,
-                    `message_id` INTEGER,
-                    `info_message_id` INTEGER,
-                    `info_message` TEXT);
-                    '''
-                cursor = await db.execute(sql)
-                await db.commit()
-                return cursor.lastrowid
-            except:
-                print("error")
-
-            try:
-                sql = f'INSERT INTO servers (serverid) VALUES (?)'
-                cursor = await db.execute(sql, (id,))
-                await db.commit()
-            except:
-                print("error")
-
-    async def get_tickets(self, serverid):
-        async with aiosqlite.connect('utilities/databases/tickets.db') as db:
-            db.row_factory = aiosqlite.Row
-            sql = f'SELECT * FROM server_{serverid}'
-            cursor = await db.execute(sql)
-            return await cursor.fetchall()
-
-    async def add_tickets(self, roles, name, serverid, info_message):
-        async with aiosqlite.connect('utilities/databases/tickets.db') as db:
-            sql = f'INSERT INTO server_{serverid} (roles, name, message_id, info_message) VALUES (?, ?, ?, ?)'
-            cursor = await db.execute(sql, (str(roles), str(name), 0, info_message,))
+            sql = f'INSERT INTO ticket_groups (name, guild, description, roles) VALUES (?, ?, ?, ?)'
+            cursor = await db.execute(sql, (name, guild, description, viewroles,))
             await db.commit()
             return cursor.lastrowid
 
-    async def add_ticket_number(self, serverid):
+    # delete a ticket from teh database
+    async def del_ticket_group(self, id):
         async with aiosqlite.connect('utilities/databases/tickets.db') as db:
-            sql = f'UPDATE servers SET tickets=tickets+1 WHERE serverid = ?'
-            cursor = await db.execute(sql, (serverid,))
+            sql = f'DELETE FROM ticket_groups WHERE id = ?'
+            await db.execute(sql, (id,))
             await db.commit()
 
-    async def get_log_channel(self, serverid):
+    # update the ticket's message to add the message id
+    async def update_ticket_group(self, id, message):
+        async with aiosqlite.connect('utilities/databases/tickets.db') as db:
+            sql = f'UPDATE ticket_groups SET message = ? WHERE id = ?'
+            await db.execute(sql, (message, id,))
+            await db.commit()
+
+    # get all ticket groups
+    async def get_all_ticket_groups(self, guild):
         async with aiosqlite.connect('utilities/databases/tickets.db') as db:
             db.row_factory = aiosqlite.Row
-            sql = f'SELECT log_channel FROM servers WHERE serverid = ?'
-            cursor = await db.execute(sql, (serverid,))
-            cursor = await cursor.fetchone()
-            return cursor
+            sql = f'SELECT * FROM ticket_groups WHERE guild = ?'
+            cursor = await db.execute(sql, (guild,))
+            return await cursor.fetchall()
 
-    async def get_ticket_number(self, serverid):
+    async def get_log_channel(self, guild):
         async with aiosqlite.connect('utilities/databases/tickets.db') as db:
             db.row_factory = aiosqlite.Row
-            sql = f'SELECT * FROM servers WHERE serverid = ?'
-            cursor = await db.execute(sql, (serverid,))
+            sql = f'SELECT * FROM server WHERE serverid = ?'
+            cursor = await db.execute(sql, (guild,))
             cursor = await cursor.fetchone()
+            return cursor['channel']
 
-            return cursor['tickets']
-
-    async def set_message_id(self, id, message_id, server_id):
+    # add an individual ticket to the database
+    async def add_ticket(self, message_id):
         async with aiosqlite.connect('utilities/databases/tickets.db') as db:
-            sql = f'UPDATE server_{server_id} SET message_id = ? WHERE id = ?'
-            cursor = await db.execute(sql, (message_id, id,))
+            sql = f'INSERT INTO tickets (message) VALUES (?)'
+            await db.execute(sql, (message_id,))
             await db.commit()
 
-    async def set_info_id(self, id, message_id, server_id):
+    async def del_ticket(self, message_id):
         async with aiosqlite.connect('utilities/databases/tickets.db') as db:
-            sql = f'UPDATE server_{server_id} SET info_message_id = ? WHERE id = ?'
-            cursor = await db.execute(sql, (message_id, id,))
+            sql = f'DELETE FROM tickets WHERE message = ?'
+            await db.execute(sql, (message_id,))
             await db.commit()
 
-    async def set_log_channel(self, server_id, channel_id):
+    async def get_ticket_by_id(self, message):
         async with aiosqlite.connect('utilities/databases/tickets.db') as db:
-            sql = f'UPDATE servers SET log_channel = ? WHERE serverid = ?'
-            await db.execute(sql, (channel_id, server_id,))
-            await db.commit()
+            db.row_factory = aiosqlite.Row
+            sql = f'SELECT * FROM tickets WHERE message = ?'
+            cursor = await db.execute(sql, (message,))
+            return await cursor.fetchone()
 
-    async def delete_ticket(self, guild, ticket):
+    async def get_tickets(self):
         async with aiosqlite.connect('utilities/databases/tickets.db') as db:
-            sql = f'DELETE FROM server_{guild} WHERE id = ?'
-            cursor = await db.execute(sql, (ticket))
+            db.row_factory = aiosqlite.Row
+            sql = f'SELECT * FROM tickets'
+            cursor = await db.execute(sql)
+            return await cursor.fetchall()
+
+    async def get_ticket_number(self, guild):
+        async with aiosqlite.connect('utilities/databases/tickets.db') as db:
+            db.row_factory = aiosqlite.Row
+            sql = f'SELECT * FROM server WHERE serverid = ?'
+            cursor = await db.execute(sql, (guild,))
+            cursor = await cursor.fetchone()
+            return cursor['ticket']
+
+    async def update_ticket_number(self, guild):
+        async with aiosqlite.connect('utilities/databases/tickets.db') as db:
+            sql = f'UPDATE server SET ticket = ticket+1 WHERE serverid = ?'
+            await db.execute(sql, (guild,))
             await db.commit()
 
 
