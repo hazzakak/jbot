@@ -97,7 +97,7 @@ class TicketsEvents(commands.Cog):
 
             channel_name = channel.name.replace(" ", "_") + ".html"
 
-            with open("additions/format.html", 'r', encoding='utf-8') as test:
+            with open("utilities/format.html", 'r', encoding='utf-8') as test:
                 file = test.read()
 
             members = []

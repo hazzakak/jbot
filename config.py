@@ -29,7 +29,7 @@ class Config:
         self.version = "3.0.0"
         self.bot = bot
         self.extensions: list = ['tickets_cmds', 'tickets_events', 'error_handler', 'listener', 'moderation',
-                                 'help_command', 'info', 'audit_logger', 'pinger', 'react_role']
+                                 'help_command', 'info', 'audit_logger', 'react_role']
         self.all_roles = [694477201839620157, 631218469974573077, 694476941188923392, 631218097122181161,
                           694476941188923392, 631218035318849538, 681917448072462470, 681916937701556257,
                           631218229854863373, 694477201839620157, 631218229854863373]
